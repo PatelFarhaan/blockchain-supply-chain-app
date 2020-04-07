@@ -42,7 +42,9 @@ def register():
     if request.method == "POST":
         input_req = request.get_json()
         resp_obj = user_register(input_req)
+        print(resp_obj, "\n\n\n\n\n\n")
         if resp_obj["result"]:
+            print(input_req)
             email = input_req["email"]
 
             if Users.objects.filter(email=email).first():

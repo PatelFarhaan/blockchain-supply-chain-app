@@ -49,6 +49,7 @@ def register():
                 return jsonify({"result": False, "message": "user exists"})
 
             input_req["password"] = generate_password_hash(input_req["password"])
+            input_req["is_admin"] = True
             new_user = Users(**input_req)
             new_user.save()
 

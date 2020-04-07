@@ -8,7 +8,6 @@ from flask_marshmallow import Marshmallow
 
 
 ######################################   *** :=>  CONFIG  <=: ***   #########################################
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = CONSTANT.SECRET_KEY.value
 
@@ -19,4 +18,11 @@ ma = Marshmallow(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "user.login"
 
-######################################   *** :=>  BLUEPRINT  <=: ***   #########################################
+######################################   *** :=>  BLUEPRINT  <=: ***   ########################################
+from project.users.views import users_blueprint
+from project.admin.views import admin_blueprint
+from project.error.error_handler import errorpage_blueprint
+
+app.register_blueprint(users_blueprint)
+app.register_blueprint(admin_blueprint)
+app.register_blueprint(errorpage_blueprint)

@@ -15,7 +15,7 @@ admin_login_schema = {
         }
 
     },
-    "requires": ["email", "password"],
+    "required": ["email", "password"],
     "additionalProperties": False
 }
 
@@ -47,13 +47,13 @@ admin_register_schema = {
             "type": "string"
         },
     },
-    "requires": ["email", "password", "first_name", "last_name"],
+    "required": ["email", "password", "first_name", "last_name"],
     "additionalProperties": False
 }
 
 def admin_register(data):
     try:
-        validate(instance=data, schema=admin_login_schema)
+        validate(instance=data, schema=admin_register_schema)
     except ValidationError as e:
         return {"result": False, "message": e.message}
     except SchemaError as e:
