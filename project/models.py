@@ -8,7 +8,6 @@ def user_load(user_id):
     return Users.objects.get(pk=user_id)
 
 
-
 class Users(db.Document, UserMixin):
     password = db.StringField()
     is_admin = db.BooleanField(default=False)
@@ -21,30 +20,16 @@ class Users(db.Document, UserMixin):
 
 
 class Warehouse(db.Document):
-    password = db.StringField()
-    last_name = db.StringField(max_length=70)
-    first_name = db.StringField(max_length=70)
-    email = db.EmailField(required=True, unique=True)
+    nodes = db.DictField()
+    email = db.EmailField(required=True)
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
-    meta = dict(indexes=['email', '-created'])
+    meta = dict(indexes=['email'])
 
 
 class Cargo(db.Document):
-    password = db.StringField()
-    last_name = db.StringField(max_length=70)
-    first_name = db.StringField(max_length=70)
-    email = db.EmailField(required=True, unique=True)
+    names = db.SetField()
+    email = db.EmailField(required=True)
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
-    meta = dict(indexes=['email', '-created'])
-
-
-class Blockchain(db.Document):
-    password = db.StringField()
-    last_name = db.StringField(max_length=70)
-    first_name = db.StringField(max_length=70)
-    email = db.EmailField(required=True, unique=True)
-    created = db.DateTimeField(default=datetime.datetime.utcnow())
-
-    meta = dict(indexes=['email', '-created'])
+    meta = dict(indexes=['email'])

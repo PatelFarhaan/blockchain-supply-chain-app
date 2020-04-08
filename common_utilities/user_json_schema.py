@@ -1,7 +1,6 @@
 from jsonschema import validate
 from jsonschema.exceptions import SchemaError, ValidationError
 
-
 ######################################################################################################
 users_login_schema = {
     "type": "object",
@@ -19,6 +18,7 @@ users_login_schema = {
     "additionalProperties": False
 }
 
+
 def user_login(data):
     try:
         validate(instance=data, schema=users_login_schema)
@@ -27,6 +27,8 @@ def user_login(data):
     except SchemaError as e:
         return {"result": False, "messgae": e.message}
     return {"result": True, "data": data}
+
+
 ######################################################################################################
 
 ######################################################################################################
@@ -50,6 +52,7 @@ users_register_schema = {
     "required": ["email", "password", "first_name", "last_name"],
     "additionalProperties": False
 }
+
 
 def user_register(data):
     try:
