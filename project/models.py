@@ -28,8 +28,18 @@ class Warehouse(db.Document):
 
 
 class Cargo(db.Document):
-    names = db.SetField()
+    names = db.DictField()
     email = db.EmailField(required=True)
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
     meta = dict(indexes=['email'])
+
+class Sensor(db.Document):
+    sensorid = db.StringField()
+    sensor_type = db.StringField()
+    cargo = db.StringField()
+    warehouse = db.StringField()
+    email = db.EmailField(required=True)
+    locations = db.ListField()
+
+    meta = dict(indexes=['sensorid'])
