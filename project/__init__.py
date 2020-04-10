@@ -5,15 +5,23 @@ from flask_login import LoginManager
 from common_utilities import CONSTANT
 from flask_mongoengine import MongoEngine
 from flask_marshmallow import Marshmallow
+from common_utilities.wallet import Wallet
+from common_utilities.blockchain import Blockchain
+
+
+
 
 
 ######################################   *** :=>  CONFIG  <=: ***   #########################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = CONSTANT.SECRET_KEY.value
-
+api_key = ""
+port = 5000
 app.config['MONGODB_SETTINGS'] = {'host': CONSTANT.PRIMARY_DB_CLUSTER.value}
 db = MongoEngine(app)
 ma = Marshmallow(app)
+wallet = Wallet
+blockchain = Blockchain
 
 login_manager = LoginManager(app)
 login_manager.login_view = "user.login"
