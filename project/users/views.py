@@ -17,6 +17,7 @@ users_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
 api_key = ""
 
+
 @users_blueprint.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -140,12 +141,12 @@ def cargo():
             cargo_obj = Cargo.objects.filter(email=email).first()
 
             if not cargo_obj:
-                cargo_obj_names = {input_req["name"]:{"source":"","destination": "", "sensor":""}}
+                cargo_obj_names = {input_req["name"]: {"source": "", "destination": "", "sensor": ""}}
                 new_cargo_obj = Cargo(names=cargo_obj_names, email=email)
                 new_cargo_obj.save()
                 return jsonify({"result": True, "message": "cargo object created"})
             else:
-                cargo_obj.names[input_req["name"]]={"source":"","destination": "", "sensor":""}
+                cargo_obj.names[input_req["name"]] = {"source": "", "destination": "", "sensor": ""}
                 cargo_obj.save()
                 return jsonify({"result": True, "message": "cargo object created"})
 
@@ -167,6 +168,7 @@ def cargo():
 
         return jsonify({"result": True, "data": res})
 
+
 ###############################
 
 @users_blueprint.route('/sensor', methods=["GET", "POST", "PATCH"])
@@ -185,57 +187,58 @@ def sensor():
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1),cargo=cargo,locations={})
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), cargo=cargo,
+                                        locations={})
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
             elif input_req['sensor_type'] == 'warehouse':
                 sensor_type = 'warehouse'
                 warehouse = input_req['warehouse']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1),warehouse=warehouse,locations={})
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse,
+                                        locations={})
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
-            
+
             else:
-                new_sensor_obj = Sensor(email=email,sensorid=str(Sensor.objects.count() + 1),locations={})
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), locations={})
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
         else:
             return jsonify(resp_obj)
-    
+
     elif request.method == "PATCH":
         user_obj = current_user
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
-        
+
         input_req = request.get_json()
         sensorid = input_req['sensorid']
-        sensor_obj = Sensor.objects.filter(email=user_obj.email,sensorid=sensorid).first()
+        sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
 
         if not sensor_obj:
             return jsonify({"result": False, "message": "No sensor found with this id"})
 
-        for i in ('sensor_type','cargo','warehouse'):
+        for i in ('sensor_type', 'cargo', 'warehouse'):
             if i in input_req:
                 if sensor_obj[i] != input_req[i]:
                     sensor_obj[i] = input_req[i]
-        #Updated object
-        sensor_obj.save() 
+        # Updated object
+        sensor_obj.save()
 
         if sensor_obj['sensor_type'] == "cargo":
-            print("cargo name:::",sensor_obj['cargo'])
+            print("cargo name:::", sensor_obj['cargo'])
             cargo = Cargo.objects.filter(email=user_obj.email).first()
             cargo_obj = cargo["names"][sensor_obj['cargo']]
-            print("CARGO OBJ:",cargo_obj)
+            print("CARGO OBJ:", cargo_obj)
 
             cargo_obj['sensor'] = sensorid
             cargo["names"][sensor_obj['cargo']] = cargo_obj
             cargo.save()
 
-
         return jsonify({"result": True, "data": sensor_obj})
-        
+
     elif request.method == "GET":
         user_obj = current_user
         if not user_obj:
@@ -253,13 +256,12 @@ def sensor():
 ##########################################
 
 
-
 @users_blueprint.route('/cargo/<name>', methods=["POST"])
 @login_required
 def updatecargo(name=None):
     if not name:
         return jsonify({"result": False, "message": "Invalid cargo name"})
-    
+
     if request.method == "POST":
         user_obj = current_user
         if not user_obj:
@@ -283,7 +285,7 @@ def updatecargo(name=None):
             res.append({i: cargo.names[i]})
 
         try:
-            api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin='+source+'&destination='+destination+'&key=' + api_key
+            api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin=' + source + '&destination=' + destination + '&key=' + api_key
             response = requests.get(api_url)
             json_data = json.loads(response.text)
             if not json_data['routes'][0]:
@@ -292,11 +294,9 @@ def updatecargo(name=None):
             steps = json_data['routes'][0]['overview_polyline']['points']
             steps = polyline.decode(steps)
             return jsonify({"result": True, "data": {"locations": steps}})
-           
+
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
-            
-        
 
 
 ##########################################
@@ -310,7 +310,7 @@ def updatesensor(cargoname=None):
         input_req = request.get_json()
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
-        print("CARGO NAME:",cargoname)
+        print("CARGO NAME:", cargoname)
         cargo = Cargo.objects.filter(email=user_obj.email).first()
         cargo_obj = cargo["names"][cargoname]
         # print(cargo_obj)
@@ -319,14 +319,16 @@ def updatesensor(cargoname=None):
 
         value = randint(24, 28)
         sensorid = cargo_obj['sensor']
-        print("SENSOR NAME:",sensorid)
+        print("SENSOR NAME:", sensorid)
 
         if not sensorid:
             return jsonify({"result": False, "message": "No sensor mapped to this cargo"})
 
-        sensor_obj = Sensor.objects.filter(email=user_obj.email,sensorid=sensorid).first()
+        sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
         # print(sensor_obj['sensorid'],sensor_obj['locations'])
-        sensor_obj['locations'].append({"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position":input_req["position"], "temperature":value})
+        sensor_obj['locations'].append(
+            {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"],
+             "temperature": value})
         sensor_obj.save()
 
         return jsonify({"result": True, "message": "Updated in database!"})

@@ -35,5 +35,4 @@ def validate_user_sensor(data):
         return {"result": False, "message": e.message}
     return {"result": True, "data": data}
 
-
 ######################################################################################################

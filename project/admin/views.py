@@ -1,5 +1,5 @@
-from project.models import Users
-from flask_login import login_user
+from project.models import Users, Warehouse
+from flask_login import login_user, login_required
 from flask import Blueprint, request, jsonify
 from project.admin.admin_serializer import AdminSchema
 from common_utilities.admin_json_schema import admin_login, admin_register
@@ -35,6 +35,26 @@ def login():
 
     elif request.method == "GET":
         return jsonify({"result": True, "status_code": 200})
+
+
+@admin_blueprint.route('/warehouse', methods=["GET", "POST"])
+def warehouse():
+    if request.method == "POST":
+        return jsonify(True)
+
+    elif request.method == "GET":
+
+        warehouse_obj = Warehouse.objects.all()
+
+        if not warehouse_obj:
+            return jsonify({"result": False, "message": "warehouses do not exist"})
+
+        res = []
+        for i in warehouse_obj:
+            for k, v in i.nodes.items():
+                res.append({"email": i.email, "name": k, "location": v})
+
+        return jsonify({"result": True, "data": res})
 
 
 @admin_blueprint.route('/register', methods=["GET", "POST"])
