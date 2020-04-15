@@ -9,11 +9,11 @@ from flask_marshmallow import Marshmallow
 from common_utilities.wallet import Wallet
 from common_utilities.blockchain import Blockchain
 
-
 ######################################   *** :=>  CONFIG  <=: ***   #########################################
 app = Flask(__name__)
 app.config['SECRET_KEY'] = CONSTANT.SECRET_KEY.value
-
+api_key = ""
+port = 5000
 app.config['MONGODB_SETTINGS'] = {'host': CONSTANT.PRIMARY_DB_CLUSTER.value}
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = MongoEngine(app)

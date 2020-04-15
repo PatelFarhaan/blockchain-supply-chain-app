@@ -4,7 +4,7 @@ from flask import jsonify, request, send_from_directory, Blueprint, render_templ
 
 
 port = CONSTANT.PORT.value
-blockchain_blueprint = Blueprint('blockchain', __name__, template_folder='templates', url_prefix='/bc')
+blockchain_blueprint = Blueprint('blockchain', __name__, template_folder='templates')
 
 
 @blockchain_blueprint.route('/', methods=['GET'])
