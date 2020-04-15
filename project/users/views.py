@@ -182,13 +182,12 @@ def sensor():
 
         input_req = request.get_json()
         resp_obj = validate_user_sensor(input_req)
-
         if resp_obj["result"]:
             email = user_obj.email
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), cargo=cargo,
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), cargo=cargo, sensor_type='cargo',
                                         locations={})
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
@@ -196,7 +195,7 @@ def sensor():
             elif input_req['sensor_type'] == 'warehouse':
                 sensor_type = 'warehouse'
                 warehouse = input_req['warehouse']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse,
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse, sensor_type='warehouse',
                                         locations={})
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
@@ -229,7 +228,7 @@ def sensor():
         sensor_obj.save()
 
         if sensor_obj['sensor_type'] == "cargo":
-            print("cargo name:::", sensor_obj['cargo'])
+            # print("cargo name:::", sensor_obj['cargo'])
             cargo = Cargo.objects.filter(email=user_obj.email).first()
             cargo_obj = cargo["names"][sensor_obj['cargo']]
             print("CARGO OBJ:", cargo_obj)
@@ -250,8 +249,23 @@ def sensor():
             return jsonify({"result": False, "message": "No sensors found for this user"})
 
         res = sensors
+        # print(res)
 
         return jsonify({"result": True, "data": res})
+
+
+@users_blueprint.route('/deletesensor/<id>', methods=["DELETE"])
+@login_required
+def deletesensor(id):
+    if request.method == "DELETE":
+        user_obj = current_user
+        if not user_obj:
+            return jsonify({"result": False, "message": "user does not exists"})
+
+        sensorid = id 
+        Sensor.objects(email=user_obj.email, sensorid=sensorid).delete()
+
+        return jsonify({"result": True, "message": "sensor deleted"})
 
 
 ##########################################
