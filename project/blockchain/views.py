@@ -1,30 +1,26 @@
-from flask import Flask, jsonify, request, send_from_directory
-from flask_cors import CORS
-
-from wallet import Wallet
-from blockchain import Blockchain
-
-app = Flask(__name__)
-CORS(app)
+from common_utilities import CONSTANT
+from project import wallet, blockchain
+from flask import jsonify, request, send_from_directory, Blueprint, render_template
 
 
-@app.route('/', methods=['GET'])
+port = CONSTANT.PORT.value
+blockchain_blueprint = Blueprint('blockchain', __name__, template_folder='templates', url_prefix='/bc')
+
+
+@blockchain_blueprint.route('/', methods=['GET'])
 def get_node_ui():
-	print(request.remote_addr)
-	return send_from_directory('ui', 'node.html')
+    return send_from_directory('templates', 'node.html')
 
 
-@app.route('/network', methods=['GET'])
+@blockchain_blueprint.route('/network', methods=['GET'])
 def get_network_ui():
-    return send_from_directory('ui', 'network.html')
+    return send_from_directory('templates', 'network.html')
 
 
-@app.route('/wallet', methods=['POST'])
+@blockchain_blueprint.route('/wallet', methods=['POST'])
 def create_keys():
     wallet.create_keys()
     if wallet.save_keys():
-        global blockchain
-        blockchain = Blockchain(wallet.public_key, port)
         response = {
             'public_key': wallet.public_key,
             'private_key': wallet.private_key,
@@ -38,11 +34,9 @@ def create_keys():
         return jsonify(response), 500
 
 
-@app.route('/wallet', methods=['GET'])
+@blockchain_blueprint.route('/wallet', methods=['GET'])
 def load_keys():
     if wallet.load_keys():
-        global blockchain
-        blockchain = Blockchain(wallet.public_key, port)
         response = {
             'public_key': wallet.public_key,
             'private_key': wallet.private_key,
@@ -56,7 +50,7 @@ def load_keys():
         return jsonify(response), 500
 
 
-@app.route('/balance', methods=['GET'])
+@blockchain_blueprint.route('/balance', methods=['GET'])
 def get_balance():
     balance = blockchain.get_balance()
     if balance is not None:
@@ -73,7 +67,7 @@ def get_balance():
         return jsonify(response), 500
 
 
-@app.route('/broadcast-transaction', methods=['POST'])
+@blockchain_blueprint.route('/broadcast-transaction', methods=['POST'])
 def broadcast_transaction():
     values = request.get_json()
     if not values:
@@ -107,7 +101,7 @@ def broadcast_transaction():
         return jsonify(response), 500
 
 
-@app.route('/broadcast-block', methods=['POST'])
+@blockchain_blueprint.route('/broadcast-block', methods=['POST'])
 def broadcast_block():
     values = request.get_json()
     if not values:
@@ -135,7 +129,7 @@ def broadcast_block():
         return jsonify(response), 409
 
 
-@app.route('/transaction', methods=['POST'])
+@blockchain_blueprint.route('/transaction', methods=['POST'])
 def add_transaction():
     if wallet.public_key is None:
         response = {
@@ -178,7 +172,7 @@ def add_transaction():
         return jsonify(response), 500
 
 
-@app.route('/mine', methods=['POST'])
+@blockchain_blueprint.route('/mine', methods=['POST'])
 def mine():
     if blockchain.resolve_conflicts:
         response = {'message': 'Resolve conflicts first, block not added!'}
@@ -202,7 +196,7 @@ def mine():
         return jsonify(response), 500
 
 
-@app.route('/resolve-conflicts', methods=['POST'])
+@blockchain_blueprint.route('/resolve-conflicts', methods=['POST'])
 def resolve_conflicts():
     replaced = blockchain.resolve()
     if replaced:
@@ -212,14 +206,14 @@ def resolve_conflicts():
     return jsonify(response), 200
 
 
-@app.route('/transactions', methods=['GET'])
+@blockchain_blueprint.route('/transactions', methods=['GET'])
 def get_open_transaction():
     transactions = blockchain.get_open_transactions()
     dict_transactions = [tx.__dict__ for tx in transactions]
     return jsonify(dict_transactions), 200
 
 
-@app.route('/chain', methods=['GET'])
+@blockchain_blueprint.route('/chain', methods=['GET'])
 def get_chain():
     chain_snapshot = blockchain.chain
     dict_chain = [block.__dict__.copy() for block in chain_snapshot]
@@ -229,7 +223,7 @@ def get_chain():
     return jsonify(dict_chain), 200
 
 
-@app.route('/node', methods=['POST'])
+@blockchain_blueprint.route('/node', methods=['POST'])
 def add_node():
     values = request.get_json()
     if not values:
@@ -251,7 +245,7 @@ def add_node():
     return jsonify(response), 201
 
 
-@app.route('/node/<node_url>', methods=['DELETE'])
+@blockchain_blueprint.route('/node/<node_url>', methods=['DELETE'])
 def remove_node(node_url):
     if node_url == '' or node_url is None:
         response = {
@@ -266,7 +260,7 @@ def remove_node(node_url):
     return jsonify(response), 200
 
 
-@app.route('/nodes', methods=['GET'])
+@blockchain_blueprint.route('/nodes', methods=['GET'])
 def get_nodes():
     nodes = blockchain.get_peer_nodes()
     response = {
@@ -274,13 +268,3 @@ def get_nodes():
     }
     return jsonify(response), 200
 
-
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-    parser = ArgumentParser()
-    parser.add_argument('-p', '--port', type=int, default=5000)
-    args = parser.parse_args()
-    port = args.port
-    wallet = Wallet(port)
-    blockchain = Blockchain(wallet.public_key, port)
-    app.run(host='0.0.0.0', port=port)
