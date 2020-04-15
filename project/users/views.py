@@ -188,21 +188,23 @@ def sensor():
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
+                locations = input_req["locations"]
                 new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), cargo=cargo,
-                                        locations={})
+                                        locations=locations)
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
             elif input_req['sensor_type'] == 'warehouse':
                 sensor_type = 'warehouse'
                 warehouse = input_req['warehouse']
+                locations = input_req["locations"]
                 new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse,
-                                        locations={})
+                                        locations=locations)
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
             else:
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), locations={})
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), locations=[])
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
