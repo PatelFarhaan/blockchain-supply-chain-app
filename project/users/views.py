@@ -182,14 +182,27 @@ def sensor():
 
         input_req = request.get_json()
         resp_obj = validate_user_sensor(input_req)
+        print(resp_obj)
         if resp_obj["result"]:
             email = user_obj.email
+            print(input_req)
+            print('this stepss')
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), cargo=cargo, sensor_type='cargo',
+                sensorid=str(Sensor.objects.count() + 1)
+                new_sensor_obj = Sensor(email=email, sensorid=sensorid, cargo=cargo, sensor_type='cargo',
                                         locations={})
                 new_sensor_obj.save()
+                
+                sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
+                cargo = Cargo.objects.filter(email=user_obj.email).first()
+                cargo_obj = cargo["names"][new_sensor_obj['cargo']]
+
+                cargo_obj['sensor'] = sensorid
+                cargo["names"][sensor_obj['cargo']] = cargo_obj
+                cargo.save()
+
                 return jsonify({"result": True, "message": "sensor object created"})
 
             elif input_req['sensor_type'] == 'warehouse':
@@ -273,7 +286,7 @@ def deletesensor(id):
 
 @users_blueprint.route('/cargo/<name>', methods=["POST"])
 @login_required
-def updatecargo(name=None):
+def updatecargo(name):
     if not name:
         return jsonify({"result": False, "message": "Invalid cargo name"})
 
@@ -282,7 +295,7 @@ def updatecargo(name=None):
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
         cargo = Cargo.objects.filter(email=user_obj.email).first()
-
+        print('1234567890')
         input_req = request.get_json()
         source = input_req['source']
         destination = input_req['destination']
@@ -311,6 +324,8 @@ def updatecargo(name=None):
 
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
+        
+        return jsonify({"result": False, "message": "Nothing happened"})
 
 
 ##########################################
@@ -324,7 +339,6 @@ def updatesensor(cargoname=None):
         input_req = request.get_json()
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
-        print("CARGO NAME:", cargoname)
         cargo = Cargo.objects.filter(email=user_obj.email).first()
         cargo_obj = cargo["names"][cargoname]
         # print(cargo_obj)
@@ -333,7 +347,6 @@ def updatesensor(cargoname=None):
 
         value = randint(24, 28)
         sensorid = cargo_obj['sensor']
-        print("SENSOR NAME:", sensorid)
 
         if not sensorid:
             return jsonify({"result": False, "message": "No sensor mapped to this cargo"})
