@@ -192,7 +192,7 @@ def sensor():
                 cargo = input_req['cargo']
                 sensorid=str(Sensor.objects.count() + 1)
                 new_sensor_obj = Sensor(email=email, sensorid=sensorid, cargo=cargo, sensor_type='cargo',
-                                        locations={})
+                                        locations=[])
                 new_sensor_obj.save()
                 
                 sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
@@ -209,12 +209,12 @@ def sensor():
                 sensor_type = 'warehouse'
                 warehouse = input_req['warehouse']
                 new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse, sensor_type='warehouse',
-                                        locations={})
+                                        locations=[])
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
             else:
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), locations={})
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), locations=[])
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
 
@@ -352,14 +352,15 @@ def updatesensor(cargoname=None):
             return jsonify({"result": False, "message": "No sensor mapped to this cargo"})
 
         sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
-        # print(sensor_obj['sensorid'],sensor_obj['locations'])
-        sensor_obj['locations'].append(
-            {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"],
-             "temperature": value})
+        print(sensor_obj['sensorid'])
+        obj = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"], "temperature": value}
+        sensor_obj['locations'].append(obj)
+        url = "http://***REMOVED***/mine"
+        resp = requests.post(url, data = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"], "temperature": value, "id": sensor_obj.id})
+        print(resp)
         sensor_obj.save()
 
         return jsonify({"result": True, "message": "Updated in database!"})
-
 
 
 
