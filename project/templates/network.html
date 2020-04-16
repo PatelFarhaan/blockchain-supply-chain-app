@@ -10,14 +10,16 @@
         crossorigin="anonymous">
 </head>
 
-<body>
+<body style="background-color:beige">
     <div id="app">
-        <div class="container">
-            <div class="row mb-3">
+        <div class="container" style="margin-top: 2%">
+            <div class="mb-3">
                 <div class="col">
                     <h1>Manage your Blockchain</h1>
+                    <hr style="margin-top: 2%">
                 </div>
-            </div>
+                <hr>
+
             <div v-if="error" class="alert alert-danger" role="alert">
                 {{ error }}
             </div>
@@ -41,8 +43,8 @@
                 <div class="col">
                     <form @submit.prevent="onAddNode">
                         <div class="form-group">
-                            <label for="node-url">Node URL</label>
-                            <input v-model="newNodeUrl" type="text" class="form-control" id="node-url" placeholder="localhost:5001">
+                            <label for="node-url" style="margin-bottom: inherit">Node URL</label>
+                            <input v-model="newNodeUrl" type="text" class="form-control" id="node-url" placeholder="Add URL here">
                         </div>
                         <button :disabled="newNodeUrl.trim() === ''" type="submit" class="btn btn-primary">Add</button>
                     </form>
@@ -51,7 +53,7 @@
             <hr>
             <div class="row my-3">
                 <div class="col">
-                    <button class="btn btn-primary" @click="onLoadNodes">Load Peer Nodes</button>
+                    <button class="btn btn-primary" style="margin-top: 2%" @click="onLoadNodes">Load Peer Nodes</button>
                 </div>
             </div>
             <div class="row">
