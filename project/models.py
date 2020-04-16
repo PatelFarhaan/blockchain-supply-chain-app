@@ -40,6 +40,6 @@ class Sensor(db.Document):
     cargo = db.StringField()
     warehouse = db.StringField()
     email = db.EmailField(required=True)
-    locations = db.DictField()
+    locations = db.ListField()
 
     meta = dict(indexes=['sensorid'])
