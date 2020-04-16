@@ -126,7 +126,25 @@ def warehouse():
         return jsonify({"result": True, "data": res})
 
 
-@users_blueprint.route('/cargo', methods=["GET", "POST"])
+@users_blueprint.route('/warehouse/<wid>', methods=["DELETE"])
+@login_required
+def delete_warehouse(wid):
+    if request.method == "DELETE":
+        user_obj = current_user
+        if not user_obj:
+            return jsonify({"result": False, "message": "user does not exists"})
+
+        warehouse_obj = Warehouse.objects(email=user_obj.email).first()
+
+        if not warehouse_obj:
+            return jsonify({"result": False, "message": "warehouse does not exists"})
+        else:
+            del warehouse_obj.nodes[wid]
+            warehouse_obj.save()
+            return jsonify({"result": True, "message": "warehouse deleted"})
+
+
+@users_blueprint.route('/cargo', methods=["GET", "POST", "DELETE"])
 @login_required
 def cargo():
     if request.method == "POST":
@@ -169,8 +187,53 @@ def cargo():
 
         return jsonify({"result": True, "data": res})
 
+    elif request.method == "PATCH":
+        user_obj = current_user
+        if not user_obj:
+            return jsonify({"result": False, "message": "user does not exists"})
 
-###############################
+        cargo_obj = Cargo.objects.filter(email=user_obj.email).first()
+
+        if not cargo_obj:
+            return jsonify({"result": False, "message": "cargos do not exist"})
+
+        input_req = request.get_json()
+        resp_obj = validate_user_cargo(input_req)
+
+        if resp_obj["result"]:
+            email = user_obj.email
+            cargo_obj = Cargo.objects.filter(email=email).first()
+
+            single_cargo_obj = cargo_obj.names.get(input_req["name"])
+            if not single_cargo_obj:
+
+                return jsonify({"result": False, "message": "cargo object does exist"})
+            else:
+
+                cargo_obj.save()
+                return jsonify({"result": True, "message": "cargo object created"})
+
+        else:
+            return jsonify(resp_obj)
+
+
+@users_blueprint.route('/cargo/<cid>', methods=["DELETE"])
+@login_required
+def delete_cargo(cid):
+    if request.method == "DELETE":
+        user_obj = current_user
+        if not user_obj:
+            return jsonify({"result": False, "message": "user does not exists"})
+
+        cargo_obj = Cargo.objects(email=user_obj.email).first()
+
+        if not cargo_obj:
+            return jsonify({"result": False, "message": "cargo does not exists"})
+        else:
+            del cargo_obj.names[cid]
+            cargo_obj.save()
+            return jsonify({"result": True, "message": "cargo deleted"})
+
 
 @users_blueprint.route('/sensor', methods=["GET", "POST", "PATCH"])
 @login_required
@@ -326,9 +389,6 @@ def updatecargo(name):
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
         
-        return jsonify({"result": False, "message": "Nothing happened"})
-
-
 ##########################################
 
 
