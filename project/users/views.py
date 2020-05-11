@@ -14,8 +14,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from common_utilities.warehouse_json_schema import validate_user_warehouse
 from flask_login import login_user, current_user, login_required, logout_user
 
-
 users_blueprint = Blueprint('user', __name__, url_prefix='/user')
+
 
 @users_blueprint.route('/login', methods=["GET", "POST"])
 def login():
@@ -76,7 +76,7 @@ def register():
 @login_required
 def logout():
     logout_user()
-    return jsonify({"result":True, "message": "user logged out"})
+    return jsonify({"result": True, "message": "user logged out"})
 
 
 @users_blueprint.route('/warehouse', methods=["GET", "POST"])
@@ -246,16 +246,14 @@ def sensor():
         print(resp_obj)
         if resp_obj["result"]:
             email = user_obj.email
-            print(input_req)
-            print('this stepss')
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
-                sensorid=str(Sensor.objects.count() + 1)
+                sensorid = str(Sensor.objects.count() + 1)
                 new_sensor_obj = Sensor(email=email, sensorid=sensorid, cargo=cargo, sensor_type='cargo',
                                         locations=[])
                 new_sensor_obj.save()
-                
+
                 sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
                 cargo = Cargo.objects.filter(email=user_obj.email).first()
                 cargo_obj = cargo["names"][new_sensor_obj['cargo']]
@@ -269,7 +267,8 @@ def sensor():
             elif input_req['sensor_type'] == 'warehouse':
                 sensor_type = 'warehouse'
                 warehouse = input_req['warehouse']
-                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse, sensor_type='warehouse',
+                new_sensor_obj = Sensor(email=email, sensorid=str(Sensor.objects.count() + 1), warehouse=warehouse,
+                                        sensor_type='warehouse',
                                         locations=[])
                 new_sensor_obj.save()
                 return jsonify({"result": True, "message": "sensor object created"})
@@ -336,7 +335,7 @@ def deletesensor(id):
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
 
-        sensorid = id 
+        sensorid = id
         Sensor.objects(email=user_obj.email, sensorid=sensorid).delete()
 
         return jsonify({"result": True, "message": "sensor deleted"})
@@ -385,7 +384,7 @@ def updatecargo(name):
 
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
-        
+
         return jsonify({"result": False, "message": "Nothing happened"})
 
 
@@ -414,12 +413,13 @@ def updatesensor(cargoname=None):
 
         sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
         print(sensor_obj['sensorid'])
-        obj = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"], "temperature": value}
+        obj = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"],
+               "temperature": value}
         sensor_obj['locations'].append(obj)
         url = "http://***REMOVED***/mine"
-        resp = requests.post(url, data = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"], "temperature": value, "id": sensor_obj.id})
+        resp = requests.post(url, data={"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                                        "position": input_req["position"], "temperature": value, "id": sensor_obj.id})
         print(resp)
         sensor_obj.save()
 
         return jsonify({"result": True, "message": "Updated in database!"})
-

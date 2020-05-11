@@ -23,6 +23,6 @@ def validate_user_warehouse(data):
     except ValidationError as e:
         return {"result": False, "message": e.message}
     except SchemaError as e:
-        return {"result": False, "messgae": e.message}
+        return {"result": False, "message": e.message}
     return {"result": True, "data": data}
 ######################################################################################################
