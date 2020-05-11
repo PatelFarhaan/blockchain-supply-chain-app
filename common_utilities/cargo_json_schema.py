@@ -5,11 +5,42 @@ from jsonschema.exceptions import SchemaError, ValidationError
 users_cargo_schema = {
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string"
-        }
+        "names": {
+            "type": "object"
+        },
+        "source": {
+                    "type": "string"
+                },
+        "sensor_id": {
+                    "type": "string"
+                },
+        "driver_age": {
+                    "type": "string"
+                },
+        "driver_name": {
+                    "type": "string"
+                },
+        "destination": {
+                    "type": "string"
+                },
+        "email": {
+                    "type": "string"
+                },
+        "cargo_registration": {
+                    "type": "string"
+                },
+        "source_warehouse_id": {
+                    "type": "string"
+                },
+        "driver_license_number": {
+                    "type": "string"
+                },
+        "destination_warehouse_id": {
+                    "type": "string"
+                },
     },
-    "required": ["name"],
+    "required": ["names", "source", "sensor_id", "driver_age", "driver_name", "destination", "email",
+                 "cargo_registration", "source_warehouse_id", "driver_license_number", "destination_warehouse_id"],
     "additionalProperties": False
 }
 

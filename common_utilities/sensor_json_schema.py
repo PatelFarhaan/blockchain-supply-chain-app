@@ -19,9 +19,28 @@ users_sensor_schema = {
         },
         "locations": {
             "type": "array"
-        }
+        },
+        "weight": {
+                    "type": "string"
+                },
+        "active": {
+                    "type": "boolean"
+                },
+        "latitude": {
+                    "type": "string"
+                },
+        "longitude": {
+                    "type": "string"
+                },
+        "barcode_id": {
+                    "type": "string"
+                },
+        "temperature": {
+                    "type": "string"
+                },
     },
-    "required": ["sensor_type"],
+    "required": ["cargo", "weight", "locations", "active", "latitude", "warehouse", "longitude", "barcode_id",
+                 "temperature", "sensor_type", "email", "sensorid"],
     "additionalProperties": False
 }
 

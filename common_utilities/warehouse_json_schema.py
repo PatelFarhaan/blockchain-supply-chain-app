@@ -5,14 +5,33 @@ from jsonschema.exceptions import SchemaError, ValidationError
 users_warehouse_schema = {
     "type": "object",
     "properties": {
-        "name": {
+        "nodes": {
+            "type": "object"
+        },
+        "size": {
             "type": "string"
         },
-        "location": {
-            "type": "string"
-        }
+        "address": {
+                    "type": "string"
+                },
+        "active": {
+                    "type": "boolean"
+                },
+        "latitude": {
+                    "type": "string"
+                },
+        "longitude": {
+                    "type": "string"
+                },
+        "cargo_capacity": {
+                    "type": "string"
+                },
+        "email": {
+                    "type": "string"
+                },
     },
-    "required": ["name", "location"],
+    "required": ["nodes", "size", "address", "active", "latitude", "longitude",
+                 "cargo_capacity", "email"],
     "additionalProperties": False
 }
 
