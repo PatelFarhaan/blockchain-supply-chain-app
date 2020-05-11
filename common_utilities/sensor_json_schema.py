@@ -18,7 +18,7 @@ users_sensor_schema = {
             "type": "string"
         },
         "locations": {
-            "type": "object"
+            "type": "array"
         }
     },
     "required": ["sensor_type"],

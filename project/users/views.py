@@ -3,10 +3,10 @@ import requests
 import polyline
 from random import randint
 from datetime import datetime
-from project import api_key, port
+from common_utilities import CONSTANT
+from flask import Blueprint, request, jsonify
 from project.users.users_serializer import UserSchema
 from project.models import Users, Warehouse, Cargo, Sensor
-from flask import Blueprint, request, jsonify, send_from_directory
 from common_utilities.cargo_json_schema import validate_user_cargo
 from common_utilities.sensor_json_schema import validate_user_sensor
 from common_utilities.user_json_schema import user_login, user_register
@@ -14,6 +14,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from common_utilities.warehouse_json_schema import validate_user_warehouse
 from flask_login import login_user, current_user, login_required, logout_user
 
+
+port = CONSTANT.PORT.value
 users_blueprint = Blueprint('user', __name__, url_prefix='/user')
 
 
@@ -246,6 +248,8 @@ def sensor():
         print(resp_obj)
         if resp_obj["result"]:
             email = user_obj.email
+            print(input_req)
+            print('this stepss')
             if input_req['sensor_type'] == 'cargo':
                 sensor_type = 'cargo'
                 cargo = input_req['cargo']
@@ -372,7 +376,7 @@ def updatecargo(name):
             res.append({i: cargo.names[i]})
 
         try:
-            api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin=' + source + '&destination=' + destination + '&key=' + api_key
+            api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin=' + source + '&destination=' + destination + '&key=' + "api_key"
             response = requests.get(api_url)
             json_data = json.loads(response.text)
             if not json_data['routes'][0]:
@@ -386,6 +390,7 @@ def updatecargo(name):
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
 
         return jsonify({"result": False, "message": "Nothing happened"})
+
 
 
 ##########################################
@@ -423,3 +428,4 @@ def updatesensor(cargoname=None):
         sensor_obj.save()
 
         return jsonify({"result": True, "message": "Updated in database!"})
+
