@@ -42,3 +42,9 @@ class Sensor(db.Document):
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
     meta = dict(indexes=['email'])
+
+
+class BlockChain(db.Document):
+    blocks = db.ListField()
+    email = db.StringField()
+    cargo_id = db.StringField()

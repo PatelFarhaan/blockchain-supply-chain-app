@@ -7,9 +7,9 @@ from datetime import datetime
 from common_utilities import CONSTANT
 from flask import Blueprint, request, jsonify
 from project.users.users_serializer import UserSchema
-from project.models import Users, Warehouse, Cargo, Sensor
 from common_utilities.cargo_json_schema import validate_user_cargo
 from common_utilities.sensor_json_schema import validate_user_sensor
+from project.models import Users, Warehouse, Cargo, Sensor
 from common_utilities.user_json_schema import user_login, user_register
 from werkzeug.security import generate_password_hash, check_password_hash
 from common_utilities.warehouse_json_schema import validate_user_warehouse
@@ -421,14 +421,14 @@ def cargo():
                 cargos_data[cargo_id] = input_req
                 new_cargo = Cargo(email=email, cargos=cargos_data)
                 new_cargo.save()
-                return jsonify({"result": False, "message": "cargo object created"})
+                return jsonify({"result": True, "message": "cargo object created"})
             else:
                 cargos_dict = dict(car_obj.cargos)
                 cargo_id = str(uuid.uuid4())
                 cargos_dict[cargo_id] = input_req
                 car_obj.cargos = cargos_dict
                 car_obj.save()
-                return jsonify({"result": False, "message": "cargo object created"})
+                return jsonify({"result": True, "message": "cargo object created"})
         else:
             return jsonify(resp_obj)
 

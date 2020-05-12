@@ -9,15 +9,14 @@ from flask_marshmallow import Marshmallow
 
 ######################################   *** :=>  CONFIG  <=: ***   #########################################
 app = Flask(__name__)
+
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SECRET_KEY'] = CONSTANT.SECRET_KEY.value
 app.config['MONGODB_SETTINGS'] = {'host': CONSTANT.PRIMARY_DB_CLUSTER.value}
-
-CORS(app, support_credentials=True, resources={r"/foo": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type'
 db = MongoEngine(app)
 ma = Marshmallow(app)
 CORS(app)
-
+CORS(app, support_credentials=True, resources={r"/foo": {"origins": "*"}})
 
 @app.after_request
 def after_request(response):

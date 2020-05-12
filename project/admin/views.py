@@ -1,4 +1,4 @@
-from project.models import Users, Warehouse
+from project.models import Users, Warehouse, BlockChain, Cargo
 from flask import Blueprint, request, jsonify
 from project.admin.admin_serializer import AdminSchema, UserObj
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -114,3 +114,67 @@ def delete_users():
         user_obj.delete()
         user_obj.save()
         return jsonify({"result": True, "message": "user deleted"})
+
+
+@admin_blueprint.route('/billing', methods=["GET"])
+@login_required
+def bill_users():
+    if request.method == "GET":
+        all_users = Users.objects.all()
+        if all_users is None:
+            return jsonify({"result": False, "message": "no users exist"})
+
+        res = []
+        ma_schema = UserObj()
+        resp = ma_schema.dump(all_users, many=True)
+        print("twinkle", resp)
+        for i in resp:
+            email = i["email"]
+            try:
+                break_down, total = helper(email)
+            except:
+                continue
+            i["break_down"] = break_down
+            i["total"] = total
+            res.append(i)
+        return jsonify({"result": True, "data": res})
+
+
+@admin_blueprint.route('/user-billing', methods=["POST"])
+@login_required
+def bill_users_single():
+    if request.method == "POST":
+        inp_req = request.get_json()
+        email = inp_req["email"]
+
+        all_users = Users.objects.filter(email=email).first()
+        if all_users is None:
+            return jsonify({"result": False, "message": "no users exist"})
+
+        res = []
+        ma_schema = UserObj()
+        i = ma_schema.dump(all_users)
+        try:
+            break_down, total = helper(email)
+            i["break_down"] = break_down
+            i["total"] = total
+            res.append(i)
+        except:
+            pass
+
+        return jsonify({"result": True, "data": res})
+
+
+def helper(email):
+    print(email)
+    cargo_obj = Cargo.objects.filter(email=email).first()
+    bc_obj = BlockChain.objects.filter(email=email).first()
+    block_len = len(bc_obj.blocks)
+    cargos_len = len(cargo_obj.cargos)
+    res = {
+        "blockchain_nodes": block_len,
+        "cargo_blocks": cargos_len,
+        "upfront_fee": "$10"
+    }
+    total = 10 + (block_len+cargos_len) * 0.10
+    return res, total
