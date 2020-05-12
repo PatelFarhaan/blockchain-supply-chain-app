@@ -1,9 +1,9 @@
 from project.models import Users, Warehouse
-from flask_login import login_user, login_required
 from flask import Blueprint, request, jsonify
-from project.admin.admin_serializer import AdminSchema
-from common_utilities.admin_json_schema import admin_login, admin_register
+from project.admin.admin_serializer import AdminSchema, UserObj
 from werkzeug.security import generate_password_hash, check_password_hash
+from common_utilities.admin_json_schema import admin_login, admin_register
+from flask_login import login_user, login_required, logout_user, current_user
 
 admin_blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -37,7 +37,15 @@ def login():
         return jsonify({"result": True, "status_code": 200})
 
 
+@admin_blueprint.route('/logout', methods=["GET"])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"result": True, "message": "admin logged out"})
+
+
 @admin_blueprint.route('/warehouse', methods=["GET", "POST"])
+@login_required
 def warehouse():
     if request.method == "POST":
         return jsonify(True)
@@ -80,3 +88,29 @@ def register():
 
     elif request.method == "GET":
         return jsonify({"result": True, "status_code": 200})
+
+
+@admin_blueprint.route('/users', methods=["GET"])
+@login_required
+def all_users():
+    if request.method == "GET":
+        all_users = Users.objects.all()
+        ma_schema = UserObj()
+        resp = ma_schema.dump(all_users, many=True)
+        return jsonify({"result": True, "data": resp})
+
+
+@admin_blueprint.route('/delete-user', methods=["DELETE"])
+@login_required
+def delete_users():
+    if request.method == "DELETE":
+        inp_req = request.get_json()
+        email = inp_req["email"]
+
+        user_obj = Users.objects.filter(email=email).first()
+        if user_obj is None:
+            return jsonify({"result": False, "message": "user does not exist"})
+
+        user_obj.delete()
+        user_obj.save()
+        return jsonify({"result": True, "message": "user deleted"})

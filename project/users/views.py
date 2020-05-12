@@ -6,7 +6,7 @@ from random import randint
 from datetime import datetime
 from common_utilities import CONSTANT
 from flask import Blueprint, request, jsonify
-from project.users.users_serializer import UserSchema, UserCargo
+from project.users.users_serializer import UserSchema
 from project.models import Users, Warehouse, Cargo, Sensor
 from common_utilities.cargo_json_schema import validate_user_cargo
 from common_utilities.sensor_json_schema import validate_user_sensor
@@ -178,7 +178,6 @@ def warehouse():
 
 
 @users_blueprint.route('mobile/warehouse/<user_id>', methods=["GET", "POST"])
-@login_required
 def mobile_warehouse(user_id):
     if request.method == "POST":
         user_obj = Users.objects.filter(user_id=user_id).first()
@@ -271,7 +270,6 @@ def delete_warehouse(w_name):
 
 
 @users_blueprint.route('/mobile/warehouse/<user_id>/<w_name>', methods=["DELETE"])
-@login_required
 def mobile_delete_warehouse(user_id, w_name):
     if request.method == "DELETE":
         user_obj = Users.objects.filter(user_id=user_id).first()
@@ -349,7 +347,6 @@ def sensor():
 
 
 @users_blueprint.route('mobile/sensor/<user_id>', methods=["GET", "POST", "PATCH"])
-@login_required
 def mobile_sensor(user_id):
     if request.method == "POST":
         user_obj = Users.objects.filter(user_id=user_id).first()
@@ -456,7 +453,6 @@ def cargo():
 
 
 @users_blueprint.route('/mobile/cargo/<user_id>', methods=["GET", "POST", "DELETE"])
-@login_required
 def mobile_cargo(user_id):
     if request.method == "POST":
         user_obj = Users.objects.filter(user_id=user_id).first()
@@ -658,7 +654,6 @@ def mobile_updatecargo(user_id, name):
 
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
-
 
 
 

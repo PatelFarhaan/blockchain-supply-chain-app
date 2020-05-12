@@ -1,4 +1,3 @@
-import uuid
 import datetime
 from flask_login import UserMixin
 from project import db, login_manager
