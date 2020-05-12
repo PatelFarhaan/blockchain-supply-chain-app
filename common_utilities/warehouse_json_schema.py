@@ -5,9 +5,12 @@ from jsonschema.exceptions import SchemaError, ValidationError
 users_warehouse_schema = {
     "type": "object",
     "properties": {
-        "nodes": {
-            "type": "object"
-        },
+        "name": {
+                    "type": "string"
+                },
+        "location": {
+                    "type": "string"
+                },
         "size": {
             "type": "string"
         },
@@ -24,14 +27,14 @@ users_warehouse_schema = {
                     "type": "string"
                 },
         "cargo_capacity": {
-                    "type": "string"
+                    "type": "integer"
                 },
         "email": {
                     "type": "string"
                 },
     },
-    "required": ["nodes", "size", "address", "active", "latitude", "longitude",
-                 "cargo_capacity", "email"],
+    "required": ["size", "address", "active", "latitude", "longitude",
+                 "cargo_capacity"],
     "additionalProperties": False
 }
 

@@ -5,23 +5,14 @@ from jsonschema.exceptions import SchemaError, ValidationError
 users_sensor_schema = {
     "type": "object",
     "properties": {
-        "sensorid": {
+        "sensor_id": {
             "type": "string"
         },
-        "sensor_type": {
+        "type": {
             "type": "string"
-        },
-        "cargo": {
-            "type": "string"
-        },
-        "warehouse": {
-            "type": "string"
-        },
-        "locations": {
-            "type": "array"
         },
         "weight": {
-                    "type": "string"
+                    "type": "number"
                 },
         "active": {
                     "type": "boolean"
@@ -36,11 +27,11 @@ users_sensor_schema = {
                     "type": "string"
                 },
         "temperature": {
-                    "type": "string"
+                    "type": "number"
                 },
     },
-    "required": ["cargo", "weight", "locations", "active", "latitude", "warehouse", "longitude", "barcode_id",
-                 "temperature", "sensor_type", "email", "sensorid"],
+    "required": ["weight", "active", "latitude", "longitude", "barcode_id",
+                 "temperature", "type", "sensor_id"],
     "additionalProperties": False
 }
 

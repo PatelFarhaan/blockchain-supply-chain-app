@@ -23,12 +23,6 @@ class Users(db.Document, UserMixin):
 
 class Warehouse(db.Document):
     nodes = db.DictField()
-    size = db.StringField()
-    address = db.StringField()
-    active = db.BooleanField()
-    latitude = db.StringField()
-    longitude = db.StringField()
-    cargo_capacity = db.IntegerField()
     email = db.EmailField(required=True)
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
@@ -36,7 +30,7 @@ class Warehouse(db.Document):
 
 
 class Cargo(db.Document):
-    names = db.DictField()
+    name = db.DictField()
     source = db.StringField()
     sensor_id = db.StringField()
     driver_age = db.StringField()
@@ -52,17 +46,6 @@ class Cargo(db.Document):
     meta = dict(indexes=['email'])
 
 class Sensor(db.Document):
-    cargo = db.StringField()
-    weight = db.StringField()
-    locations = db.ListField()
-    active = db.BooleanField()
-    latitude = db.StringField()
-    warehouse = db.StringField()
-    longitude = db.StringField()
-    barcode_id = db.StringField()
-    temperature = db.StringField()
-    sensor_type = db.StringField()
+    sensors = db.DictField()
     email = db.EmailField(required=True)
-    sensorid = db.StringField(default=str(uuid.uuid4()))
-
-    meta = dict(indexes=['sensorid'])
+    created = db.DateTimeField(default=datetime.datetime.utcnow())
