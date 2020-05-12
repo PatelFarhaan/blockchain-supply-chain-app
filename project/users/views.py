@@ -672,7 +672,6 @@ def updatesensor(cargoname=None):
             return jsonify({"result": False, "message": "user does not exists"})
         cargo = Cargo.objects.filter(email=user_obj.email).first()
         cargo_obj = cargo["names"][cargoname]
-        # print(cargo_obj)
         if not cargo_obj:
             return jsonify({"result": False, "message": "cargo with given name does not exist"})
 
