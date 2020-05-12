@@ -6,10 +6,10 @@ from random import randint
 from datetime import datetime
 from common_utilities import CONSTANT
 from flask import Blueprint, request, jsonify
-from project.users.users_serializer import UserSchema
+from project.users.users_serializer import UserSchema, UserObj
 from common_utilities.cargo_json_schema import validate_user_cargo
 from common_utilities.sensor_json_schema import validate_user_sensor
-from project.models import Users, Warehouse, Cargo, Sensor
+from project.models import Users, Warehouse, Cargo, Sensor, BlockChain
 from common_utilities.user_json_schema import user_login, user_register
 from werkzeug.security import generate_password_hash, check_password_hash
 from common_utilities.warehouse_json_schema import validate_user_warehouse
@@ -503,6 +503,42 @@ def mobile_cargo(user_id):
                 temp_obj[i] = j
             res.append(temp_obj)
         return jsonify({"result": True, "data": res})
+
+
+@users_blueprint.route('/mobile/user-bill/<user_id>', methods=["GET"])
+def bill_user(user_id):
+    if request.method == "GET":
+        all_users = Users.objects.filter(user_id=user_id).first()
+        if all_users is None:
+            return jsonify({"result": False, "message": "no users exist"})
+
+        res = []
+        ma_schema = UserObj()
+        i = ma_schema.dump(all_users)
+        try:
+            break_down, total = helper(all_users.email)
+            i["blockchain_nodes"] = break_down["blockchain_nodes"]
+            i["cargo_blocks"] = break_down["cargo_blocks"]
+            i["upfront_fee"] = break_down["upfront_fee"]
+            i["total"] = total
+            res.append(i)
+        except:
+            pass
+        return jsonify({"result": True, "data": res})
+
+
+def helper(email):
+    cargo_obj = Cargo.objects.filter(email=email).first()
+    bc_obj = BlockChain.objects.filter(email=email).first()
+    block_len = len(bc_obj.blocks)
+    cargos_len = len(cargo_obj.cargos)
+    res = {
+        "blockchain_nodes": block_len,
+        "cargo_blocks": cargos_len,
+        "upfront_fee": "$10"
+    }
+    total = 10 + (block_len+cargos_len) * 0.10
+    return res, total
 ########################################################################################
 
 

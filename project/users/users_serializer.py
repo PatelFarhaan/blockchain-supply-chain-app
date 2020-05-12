@@ -9,3 +9,8 @@ class UserSchema(ma.Schema):
 class UserMobileSchema(ma.Schema):
     class Meta:
         fields = ("first_name", "last_name", "email", "id")
+
+
+class UserObj(ma.Schema):
+    class Meta:
+        fields = ("user_id", "first_name", "last_name", "email")
