@@ -411,6 +411,7 @@ def getmapdetails(cargoid):
         if not cargo_obj:
             return jsonify({"result": False, "message": "cargo's do not exist"})
 
+        route_id = str(uuid.uuid4())
         res = []
         data = cargo_obj.cargos
         cargo = {}
@@ -446,7 +447,7 @@ def getmapdetails(cargoid):
 
             steps = json_data['routes'][0]['overview_polyline']['points']
             steps = polyline.decode(steps)
-            return jsonify({"result": True, "data": {"locations": steps, "cargo":cargo}})
+            return jsonify({"result": True, "data": {"locations": steps, "cargo":cargo,"route_id":route_id}})
 
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
@@ -739,7 +740,7 @@ def updatesensor(cargoname=None):
                "temperature": value}
         url = "http://***REMOVED***/mine"
         data={"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "sensor_id": sensorid, "email":user_obj.email, 
-                                        "position": input_req["position"], "temperature": value, "id": 'blk1', "weight": value+5}
+                                        "position": input_req["position"], "temperature": value, "id": input_req['route_id'], "weight": value+5}
         resp = requests.post(url, data=data)
         # print(data)
         # print(resp)
@@ -782,4 +783,3 @@ def mobile_updatesensor(user_id, cargoname=None):
         sensor_obj.save()
 
         return jsonify({"result": True, "message": "Updated in database!"})
-
