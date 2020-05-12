@@ -30,22 +30,16 @@ class Warehouse(db.Document):
 
 
 class Cargo(db.Document):
-    name = db.StringField()
-    source = db.StringField()
-    driver_age = db.IntField()
-    sensor_id = db.StringField()
-    driver_name = db.StringField()
-    destination = db.StringField()
-    driver_license = db.StringField()
+    cargos = db.DictField()
     email = db.EmailField(required=True)
-    cargo_registration = db.StringField()
-    source_warehouse_id = db.StringField()
-    destination_warehouse_id = db.StringField()
     created = db.DateTimeField(default=datetime.datetime.utcnow())
 
     meta = dict(indexes=['email'])
+
 
 class Sensor(db.Document):
     sensors = db.DictField()
     email = db.EmailField(required=True)
     created = db.DateTimeField(default=datetime.datetime.utcnow())
+
+    meta = dict(indexes=['email'])

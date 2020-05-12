@@ -384,7 +384,7 @@ def mobile_sensor(user_id):
             return jsonify(resp_obj)
 
     elif request.method == "GET":
-        user_obj = current_user
+        user_obj = Users.objects.filter(user_id=user_id).first()
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
 
@@ -402,8 +402,7 @@ def mobile_sensor(user_id):
             res.append(temp_obj)
         return jsonify({"result": True, "data": res})
 
-    
-########################################################################################
+
 @users_blueprint.route('/cargo', methods=["GET", "POST", "DELETE"])
 @login_required
 def cargo():
@@ -420,13 +419,19 @@ def cargo():
             car_obj = Cargo.objects.filter(email=email).first()
             if car_obj is None :
                 input_req["email"] = email
-                sensor_id = str(uuid.uuid4())
-                input_req["sensor_id"] = sensor_id
-                new_cargo = Cargo(**input_req)
+                cargos_data = {}
+                cargo_id = str(uuid.uuid4())
+                cargos_data[cargo_id] = input_req
+                new_cargo = Cargo(email=email, cargos=cargos_data)
                 new_cargo.save()
                 return jsonify({"result": False, "message": "cargo object created"})
             else:
-                return jsonify({"result": False, "message": "cargo exists"})
+                cargos_dict = dict(car_obj.cargos)
+                cargo_id = str(uuid.uuid4())
+                cargos_dict[cargo_id] = input_req
+                car_obj.cargos = cargos_dict
+                car_obj.save()
+                return jsonify({"result": False, "message": "cargo object created"})
         else:
             return jsonify(resp_obj)
 
@@ -439,9 +444,15 @@ def cargo():
         if not cargo_obj:
             return jsonify({"result": False, "message": "cargo's do not exist"})
 
-        ma_schema = UserCargo()
-        resp = ma_schema.dump(cargo_obj)
-        return jsonify({"result": True, "data": resp})
+        res = []
+        data = cargo_obj.cargos
+        for k, v in data.items():
+            temp_obj = {}
+            temp_obj["cargo_id"] = k
+            for i, j in v.items():
+                temp_obj[i] = j
+            res.append(temp_obj)
+        return jsonify({"result": True, "data": res})
 
 
 @users_blueprint.route('/mobile/cargo/<user_id>', methods=["GET", "POST", "DELETE"])
@@ -449,6 +460,7 @@ def cargo():
 def mobile_cargo(user_id):
     if request.method == "POST":
         user_obj = Users.objects.filter(user_id=user_id).first()
+
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
 
@@ -457,61 +469,45 @@ def mobile_cargo(user_id):
 
         if resp_obj["result"]:
             email = user_obj.email
-            cargo_obj = Cargo.objects.filter(email=email).first()
-            if not cargo_obj:
-                cargo_obj_names = {input_req["name"]: {"source": "", "destination": "", "sensor": ""}}
-                new_cargo_obj = Cargo(names=cargo_obj_names, email=email)
-                new_cargo_obj.save()
-                return jsonify({"result": True, "message": "cargo object created"})
+            car_obj = Cargo.objects.filter(email=email).first()
+            if car_obj is None:
+                input_req["email"] = email
+                cargos_data = {}
+                cargo_id = str(uuid.uuid4())
+                cargos_data[cargo_id] = input_req
+                new_cargo = Cargo(email=email, cargos=cargos_data)
+                new_cargo.save()
+                return jsonify({"result": False, "message": "cargo object created"})
             else:
-                cargo_obj.names[input_req["name"]] = {"source": "", "destination": "", "sensor": ""}
-                cargo_obj.save()
-                return jsonify({"result": True, "message": "cargo object created"})
+                cargos_dict = dict(car_obj.cargos)
+                cargo_id = str(uuid.uuid4())
+                cargos_dict[cargo_id] = input_req
+                car_obj.cargos = cargos_dict
+                car_obj.save()
+                return jsonify({"result": False, "message": "cargo object created"})
         else:
             return jsonify(resp_obj)
 
     elif request.method == "GET":
         user_obj = Users.objects.filter(user_id=user_id).first()
+
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
 
         cargo_obj = Cargo.objects.filter(email=user_obj.email).first()
         if not cargo_obj:
-            return jsonify({"result": False, "message": "cargos do not exist"})
+            return jsonify({"result": False, "message": "cargo's do not exist"})
 
         res = []
-        for i in cargo_obj.names:
-            res.append({i: cargo_obj.names[i]})
+        data = cargo_obj.cargos
+        for k, v in data.items():
+            temp_obj = {}
+            temp_obj["cargo_id"] = k
+            for i, j in v.items():
+                temp_obj[i] = j
+            res.append(temp_obj)
         return jsonify({"result": True, "data": res})
-
-    elif request.method == "PATCH":
-        user_obj = Users.objects.filter(user_id=user_id).first()
-        if not user_obj:
-            return jsonify({"result": False, "message": "user does not exists"})
-
-        cargo_obj = Cargo.objects.filter(email=user_obj.email).first()
-
-        if not cargo_obj:
-            return jsonify({"result": False, "message": "cargos do not exist"})
-
-        input_req = request.get_json()
-        resp_obj = validate_user_cargo(input_req)
-
-        if resp_obj["result"]:
-            email = user_obj.email
-            cargo_obj = Cargo.objects.filter(email=email).first()
-
-            single_cargo_obj = cargo_obj.names.get(input_req["name"])
-            if not single_cargo_obj:
-
-                return jsonify({"result": False, "message": "cargo object does exist"})
-            else:
-
-                cargo_obj.save()
-                return jsonify({"result": True, "message": "cargo object created"})
-
-        else:
-            return jsonify(resp_obj)
+########################################################################################
 
 
 @users_blueprint.route('/cargo/<cid>', methods=["DELETE"])
@@ -578,7 +574,6 @@ def mobile_deletesensor(user_id, id):
         return jsonify({"result": True, "message": "sensor deleted"})
 
 
-##########################################
 
 
 @users_blueprint.route('/cargo/<name>', methods=["POST"])
@@ -622,7 +617,6 @@ def updatecargo(name):
         except:
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
 
-        return jsonify({"result": False, "message": "Nothing happened"})
 
 
 @users_blueprint.route('mobile/cargo/<user_id>/<name>', methods=["POST"])
@@ -666,7 +660,6 @@ def mobile_updatecargo(user_id, name):
             return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
 
 
-##########################################
 
 
 @users_blueprint.route('/updatesensor/<cargoname>', methods=["POST"])
