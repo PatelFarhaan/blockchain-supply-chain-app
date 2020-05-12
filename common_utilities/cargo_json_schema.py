@@ -5,9 +5,9 @@ from jsonschema.exceptions import SchemaError, ValidationError
 users_cargo_schema = {
     "type": "object",
     "properties": {
-        "names": {
-            "type": "object"
-        },
+        "name": {
+            "type": "string"
+                },
         "source": {
                     "type": "string"
                 },
@@ -15,7 +15,7 @@ users_cargo_schema = {
                     "type": "string"
                 },
         "driver_age": {
-                    "type": "string"
+                    "type": "integer"
                 },
         "driver_name": {
                     "type": "string"
@@ -32,15 +32,15 @@ users_cargo_schema = {
         "source_warehouse_id": {
                     "type": "string"
                 },
-        "driver_license_number": {
+        "driver_license": {
                     "type": "string"
                 },
         "destination_warehouse_id": {
                     "type": "string"
                 },
     },
-    "required": ["names", "source", "sensor_id", "driver_age", "driver_name", "destination", "email",
-                 "cargo_registration", "source_warehouse_id", "driver_license_number", "destination_warehouse_id"],
+    "required": ["name", "source", "sensor_id", "driver_age", "driver_name", "destination",
+                 "cargo_registration", "source_warehouse_id", "driver_license", "destination_warehouse_id"],
     "additionalProperties": False
 }
 
