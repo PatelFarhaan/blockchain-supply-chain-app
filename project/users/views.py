@@ -399,6 +399,63 @@ def mobile_sensor(user_id):
             res.append(temp_obj)
         return jsonify({"result": True, "data": res})
 
+@users_blueprint.route('cargo/<cargoid>', methods=["GET"])
+@login_required
+def getmapdetails(cargoid):
+    if request.method == "GET":
+        user_obj = current_user
+        if not user_obj:
+            return jsonify({"result": False, "message": "user does not exists"})
+
+        cargo_obj = Cargo.objects.filter(email=user_obj.email).first()
+        if not cargo_obj:
+            return jsonify({"result": False, "message": "cargo's do not exist"})
+
+        res = []
+        data = cargo_obj.cargos
+        cargo = {}
+        for i in data.keys():
+            if i == cargoid:
+                cargo = data[i]
+        source = cargo['source']
+        destination = cargo['destination']
+        if source == 'San Jose':
+            source = '37.774929,-122.419418'
+        elif source == 'Chicago':
+            source = "41.8781,-87.6298"
+        elif source == 'New York':
+            source = "40.7128,-74.0060" 
+        elif source == 'Boston':
+            source = "42.3601,-71.0589"
+        
+        if destination == 'San Jose':
+            destination = '37.774929,-122.419418'
+        elif destination == 'Chicago':
+            destination = "41.8781,-87.6298"
+        elif destination == 'New York':
+            destination = "40.7128,-74.0060" 
+        elif destination == 'Boston':
+            destination = "42.3601,-71.0589"
+
+        try:
+            api_url = 'https://maps.googleapis.com/maps/api/directions/json?origin=' + source + '&destination=' + destination + '&key=' + api_key
+            response = requests.get(api_url)
+            json_data = json.loads(response.text)
+            if not json_data['routes'][0]:
+                return jsonify({"result": True, "message": "No route exists between source and destination"})
+
+            steps = json_data['routes'][0]['overview_polyline']['points']
+            steps = polyline.decode(steps)
+            return jsonify({"result": True, "data": {"locations": steps, "cargo":cargo}})
+
+        except:
+            return jsonify({"result": True, "message": "Cannot connect to Google Maps"})
+
+
+
+        return jsonify({"result": True, "data": cargo})
+
+
 
 @users_blueprint.route('/cargo', methods=["GET", "POST", "DELETE"])
 @login_required
@@ -666,28 +723,29 @@ def updatesensor(cargoname=None):
         if not user_obj:
             return jsonify({"result": False, "message": "user does not exists"})
         cargo = Cargo.objects.filter(email=user_obj.email).first()
-        cargo_obj = cargo["names"][cargoname]
+        cargo_obj = cargo["cargos"][cargoname]
         if not cargo_obj:
             return jsonify({"result": False, "message": "cargo with given name does not exist"})
 
         value = randint(24, 28)
-        sensorid = cargo_obj['sensor']
+        sensorid = cargo_obj['sensor_id']
 
         if not sensorid:
             return jsonify({"result": False, "message": "No sensor mapped to this cargo"})
 
-        sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
-        print(sensor_obj['sensorid'])
+        # sensor_obj = Sensor.objects.filter(email=user_obj.email, sensorid=sensorid).first()
+        # print(sensor_obj['sensorid'])
         obj = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"],
                "temperature": value}
-        sensor_obj['locations'].append(obj)
         url = "http://***REMOVED***/mine"
-        resp = requests.post(url, data={"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
-                                        "position": input_req["position"], "temperature": value, "id": sensor_obj.id})
-        print(resp)
-        sensor_obj.save()
+        data={"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "sensor_id": sensorid, "email":user_obj.email, 
+                                        "position": input_req["position"], "temperature": value, "id": 'blk1', "weight": value+5}
+        resp = requests.post(url, data=data)
+        # print(data)
+        # print(resp)
+        # sensor_obj.save()
 
-        return jsonify({"result": True, "message": "Updated in database!"})
+        return jsonify({"result": True, "message": "Updated in blockchain!"})
 
 
 @users_blueprint.route('mobile/updatesensor/<user_id>/<cargoname>', methods=["POST"])
