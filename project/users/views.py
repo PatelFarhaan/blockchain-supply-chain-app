@@ -800,7 +800,7 @@ def updatesensor(cargoname=None):
         # print(sensor_obj['sensorid'])
         obj = {"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "position": input_req["position"],
                "temperature": value}
-        url = "http://***REMOVED***/mine"
+        url = "http://***REMOVED***:80/mine"
         data={"time": datetime.now().strftime("%d/%m/%Y %H:%M:%S"), "sensor_id": sensorid, "email":user_obj.email, 
                                         "position": input_req["position"], "temperature": value, "id": input_req['route_id'], "weight": value+5}
         resp = requests.post(url, data=data)
