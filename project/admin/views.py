@@ -178,28 +178,3 @@ def helper(email):
     total = 10 + (block_len+cargos_len) * 0.10
     return res, total
 
-@admin_blueprint.route('/warehouse-details', methods=["GET"])
-@login_required
-def warehouse_det():
-    if request.method == "GET":
-        warehouse_cnt = Warehouse.objects.count()
-        data = {}
-        data["deleted"] = 3
-        data["inactive"] = 5
-        data["active"] = warehouse_cnt
-        return jsonify({"result": True, "data": data})
-
-
-
-@admin_blueprint.route('/blockchain-details', methods=["GET"])
-@login_required
-def blockchain_det():
-    if request.method == "GET":
-        data = []
-        bc_cnt = BlockChain.objects.order_by('-id').limit(3)
-        for i in bc_cnt:
-            temp_dict= {}
-            temp_dict["id"] = i.cargo_id
-            temp_dict["number_of_blocks"] = len(list(i.blocks))
-            data.append(temp_dict)
-        return jsonify({"result": True, "data": data})
